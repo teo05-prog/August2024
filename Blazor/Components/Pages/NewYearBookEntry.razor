@@ -1,0 +1,128 @@
+﻿@page "/NewYearBookEntry"
+@using Blazor.Entities
+@using Blazor.Services
+@rendermode InteractiveServer
+@inject IYearBookService YearBookService
+@inject NavigationManager NavigationManager
+<h3>New Year Book Entry</h3>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label">Name:</label>
+            <input type="text" class="form-control" @bind="name" placeholder="Enter student name"/>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Pronouns:</label>
+            <input type="text" class="form-control" @bind="pronouns" placeholder="Enter pronouns"/>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Fun fact:</label>
+            <input type="text" class="form-control" @bind="funFact" placeholder="Enter fun fact"/>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Starting year:</label>
+            <input type="number" class="form-control" @bind="startingYear" placeholder="Enter starting year"/>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Image URL:</label>
+            <input type="text" class="form-control" @bind="image" placeholder="Enter image URL"/>
+        </div>
+
+        <button class="btn btn-primary" @onclick="HandleAddEntry">Add entry</button>
+        <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    </div>
+</div>
+
+@code {
+    private string name = string.Empty;
+    private string pronouns = string.Empty;
+    private string funFact = string.Empty;
+    private string startingYear = string.Empty;
+    private string image = string.Empty;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+
+    private async Task HandleAddEntry()
+    {
+        try
+        {
+            errorMessage = string.Empty;
+            successMessage = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                errorMessage = "Name is required.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(pronouns))
+            {
+                errorMessage = "Pronouns are required.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(funFact))
+            {
+                errorMessage = "Fun fact is required.";
+                return;
+            }
+
+            if (!int.TryParse(startingYear, out int parsedYear) || parsedYear <= 0)
+            {
+                errorMessage = "Starting year must be a positive number.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(image))
+            {
+                errorMessage = "Image URL is required.";
+                return;
+            }
+
+            var newEntry = new YearBookEntry
+            {
+                Name = name,
+                Pronouns = pronouns,
+                FunFact = funFact,
+                StartingYear = parsedYear,
+                ImageUrl = image
+            };
+
+            await YearBookService.AddYearBookEntryAsync(newEntry);
+
+            successMessage = "Year book entry added successfully!";
+            name = string.Empty;
+            pronouns = string.Empty;
+            funFact = string.Empty;
+            startingYear = string.Empty;
+            image = string.Empty;
+            
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

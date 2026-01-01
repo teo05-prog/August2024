@@ -1,0 +1,143 @@
+﻿@page "/ViewYearBook"
+@using Blazor.Entities
+@using Blazor.Services
+@rendermode InteractiveServer
+@inject IYearBookService YearBookService
+
+<style>
+    .entry-card {
+        border: 2px solid #ddd;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .entry-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .entry-card img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        background-color: #f0f0f0;
+    }
+    
+    .entry-card-body {
+        padding: 15px;
+        text-align: center;
+        background-color: #f9f9f9;
+    }
+    
+    .entry-card-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+    }
+    
+    .entry-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
+    
+    .entry-modal-content {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+</style>
+
+<h3>View Year Book</h3>
+
+<YearList></YearList>
+
+@if (bookEntries == null)
+{
+    <p>Loading year book entries...</p>
+}
+else if (!bookEntries.Any())
+{
+    <p>No year book entries found.</p>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var entry in bookEntries.OrderBy(g => g.StartingYear))
+        {
+            <div class="col-md-6 col-lg-4 col-xl-3" @key="entry.Name">
+                <div class="entry-card" @onclick="() => SelectYearBookEntry(entry)">
+                    <div class="entry-card-body">
+                        <div class="entry-card-title">@entry.Name</div>
+                    </div>
+                    <img src="@entry.ImageUrl" alt="@entry.Name" onerror="this.src='https://via.placeholder.com/280x350?text=@entry.Name';"/>
+                    <div class="entry-card-body">
+                        <div class="entry-card-pronouns-year">@entry.Pronouns (@entry.StartingYear)</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (selectedEntry != null)
+{
+    <div class="entry-modal-overlay" @onclick="CloseModal">
+        <div class="entry-modal-content" @onclick:stopPropagation="true">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h5 style="margin: 0; font-weight: 600;">@selectedEntry.Name</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                
+                <img src="@selectedEntry.ImageUrl" class="img-fluid" alt="@selectedEntry.Name" style="max-height: 350px; width: 100%; object-fit: contain; margin-bottom: 15px; border-radius: 8px;"/>
+                
+                <hr style="margin: 15px 0;"/>
+                
+                <div style="line-height: 1.8;">
+                    <p><strong>Pronouns:</strong> @selectedEntry.Pronouns</p>
+                    <p><strong>Fun Fact:</strong> @selectedEntry.FunFact</p>
+                    <p><strong>Starting year:</strong> @selectedEntry.StartingYear</p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IEnumerable<YearBookEntry>? bookEntries;
+    private YearBookEntry? selectedEntry;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        bookEntries = await YearBookService.GetAllYearBookEntriesAsync();
+    }
+    
+    private void SelectYearBookEntry(YearBookEntry entry)
+    {
+        selectedEntry = entry;
+    }
+    
+    private void CloseModal()
+    {
+        selectedEntry = null;
+    }
+}

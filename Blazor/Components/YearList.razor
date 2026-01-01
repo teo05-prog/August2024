@@ -1,0 +1,64 @@
+﻿@using Blazor.Services
+@inject IYearBookService YearBookService
+
+<div class="genre-list-container">
+    <h4>Year Summary</h4>
+    
+    @if (yearCounts == null)
+    {
+        <p><em>Loading years...</em></p>
+    }
+    else if (!yearCounts.Any())
+    {
+        <p><em>No years found.</em></p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var year in yearCounts.OrderByDescending(y => y.Value).ThenBy(y => y.Key))
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@year.Key</span>
+                    <span class="badge rounded-pill">@year.Value</span>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+<style>
+    .genre-list-container {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #37393e;
+    }
+    
+    .genre-list-container h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #37393e;
+    }
+    
+    .list-group-item {
+        border: 1px solid #dee2e6;
+    }
+    
+    .badge {
+        background-color: #37393e;
+    }
+</style>
+
+@code {
+    private Dictionary<int, int>? yearCounts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allEntries = await YearBookService.GetAllYearBookEntriesAsync();
+        
+        yearCounts = allEntries
+            .GroupBy(y => y.StartingYear)
+            .ToDictionary(y => y.Key, y => y.Count());
+    }
+}
