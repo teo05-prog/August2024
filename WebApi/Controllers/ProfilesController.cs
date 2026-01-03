@@ -8,11 +8,11 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 public class ProfilesController : ControllerBase
 {
-    private readonly IMatchService _matchService;
+    private readonly IMatchService matchService;
 
     public ProfilesController(IMatchService matchService)
     {
-        _matchService = matchService;
+        this.matchService = matchService;
     }
     
     [HttpPost]
@@ -20,7 +20,7 @@ public class ProfilesController : ControllerBase
     {
         try
         {
-            var createdProfile = _matchService.CreateProfile(profile);
+            var createdProfile = matchService.CreateProfile(profile);
             return CreatedAtAction(nameof(GetProfile), new { id = createdProfile.Id }, createdProfile);
         }
         catch (ArgumentException ex)
@@ -34,7 +34,7 @@ public class ProfilesController : ControllerBase
     {
         try
         {
-            _matchService.AddLike(profileId, likeProfileId);
+            matchService.AddLike(profileId, likeProfileId);
             return NoContent();
         }
         catch (ArgumentException ex)
@@ -52,7 +52,7 @@ public class ProfilesController : ControllerBase
     {
         try
         {
-            var profiles = _matchService.GetAllProfiles(gender, minAge, maxAge);
+            var profiles = matchService.GetAllProfiles(gender, minAge, maxAge);
             return Ok(profiles);
         }
         catch (Exception ex)
@@ -66,7 +66,7 @@ public class ProfilesController : ControllerBase
     {
         try
         {
-            var matches = _matchService.GetMatches(profileId);
+            var matches = matchService.GetMatches(profileId);
             return Ok(matches);
         }
         catch (ArgumentException ex)
@@ -78,12 +78,13 @@ public class ProfilesController : ControllerBase
     [HttpGet("{id}")]
     public ActionResult<Profile> GetProfile(int id)
     {
-        var profiles = _matchService.GetAllProfiles();
+        var profiles = matchService.GetAllProfiles();
         var profile = profiles.FirstOrDefault(p => p.Id == id);
-        
-        if (profile == null)
-            return NotFound(new { error = $"Profile with ID {id} not found." });
 
+        if (profile == null)
+        {
+            return NotFound(new { error = $"Profile with ID {id} not found." });
+        }
         return Ok(profile);
     }
 }

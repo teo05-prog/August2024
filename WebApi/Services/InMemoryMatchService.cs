@@ -4,12 +4,12 @@ namespace WebApi.Services;
 
 public class InMemoryMatchService : IMatchService
 {
-    private List<Profile> _profiles;
-    private int _nextProfileId = 1;
+    private List<Profile> profiles;
+    private int nextProfileId = 1;
 
     public InMemoryMatchService()
     {
-        _profiles = new List<Profile>();
+        profiles = new List<Profile>();
         SeedDummyData();
     }
 
@@ -18,7 +18,7 @@ public class InMemoryMatchService : IMatchService
         // Create dummy profiles
         var profile1 = new Profile
         {
-            Id = _nextProfileId++,
+            Id = nextProfileId++,
             Name = "Alice",
             Age = 28,
             Gender = "Female",
@@ -27,7 +27,7 @@ public class InMemoryMatchService : IMatchService
 
         var profile2 = new Profile
         {
-            Id = _nextProfileId++,
+            Id = nextProfileId++,
             Name = "Bob",
             Age = 30,
             Gender = "Male",
@@ -36,7 +36,7 @@ public class InMemoryMatchService : IMatchService
 
         var profile3 = new Profile
         {
-            Id = _nextProfileId++,
+            Id = nextProfileId++,
             Name = "Charlie",
             Age = 25,
             Gender = "Male",
@@ -45,7 +45,7 @@ public class InMemoryMatchService : IMatchService
 
         var profile4 = new Profile
         {
-            Id = _nextProfileId++,
+            Id = nextProfileId++,
             Name = "Diana",
             Age = 27,
             Gender = "Female",
@@ -53,10 +53,10 @@ public class InMemoryMatchService : IMatchService
         };
 
         // Add profiles to the list
-        _profiles.Add(profile1);
-        _profiles.Add(profile2);
-        _profiles.Add(profile3);
-        _profiles.Add(profile4);
+        profiles.Add(profile1);
+        profiles.Add(profile2);
+        profiles.Add(profile3);
+        profiles.Add(profile4);
 
         // Seed some likes
         // Alice likes Bob and Charlie
@@ -85,11 +85,11 @@ public class InMemoryMatchService : IMatchService
             throw new ArgumentException("Profile gender is required.");
 
         // Set the ID
-        profile.Id = _nextProfileId++;
+        profile.Id = nextProfileId++;
         profile.Likes ??= new List<Like>();
 
         // Add to the list
-        _profiles.Add(profile);
+        profiles.Add(profile);
 
         return profile;
     }
@@ -97,12 +97,12 @@ public class InMemoryMatchService : IMatchService
     public void AddLike(int fromProfileId, int toProfileId)
     {
         // Find the profile that is adding the like
-        var fromProfile = _profiles.FirstOrDefault(p => p.Id == fromProfileId);
+        var fromProfile = profiles.FirstOrDefault(p => p.Id == fromProfileId);
         if (fromProfile == null)
             throw new ArgumentException($"Profile with ID {fromProfileId} not found.");
 
         // Verify that the profile being liked exists
-        var toProfile = _profiles.FirstOrDefault(p => p.Id == toProfileId);
+        var toProfile = profiles.FirstOrDefault(p => p.Id == toProfileId);
         if (toProfile == null)
             throw new ArgumentException($"Profile with ID {toProfileId} not found.");
 
@@ -116,7 +116,7 @@ public class InMemoryMatchService : IMatchService
 
     public List<Profile> GetAllProfiles(string? gender = null, int? minAge = null, int? maxAge = null)
     {
-        var query = _profiles.AsEnumerable();
+        var query = profiles.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(gender))
             query = query.Where(p => p.Gender.Equals(gender, StringComparison.OrdinalIgnoreCase));
@@ -133,7 +133,7 @@ public class InMemoryMatchService : IMatchService
     public List<Profile> GetMatches(int profileId)
     {
         // Find the profile
-        var profile = _profiles.FirstOrDefault(p => p.Id == profileId);
+        var profile = profiles.FirstOrDefault(p => p.Id == profileId);
         if (profile == null)
             throw new ArgumentException($"Profile with ID {profileId} not found.");
 
@@ -143,7 +143,7 @@ public class InMemoryMatchService : IMatchService
         {
             foreach (var like in profile.Likes)
             {
-                var likedProfile = _profiles.FirstOrDefault(p => p.Id == like.ProfileId);
+                var likedProfile = profiles.FirstOrDefault(p => p.Id == like.ProfileId);
                 if (likedProfile != null && likedProfile.Likes != null && likedProfile.Likes.Any(l => l.ProfileId == profileId))
                 {
                     matches.Add(likedProfile);
