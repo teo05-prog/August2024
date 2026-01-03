@@ -1,10 +1,6 @@
 ﻿using EFC;
 using EFC.Entities;
 
-var context = new HotelContext();
-
-Console.WriteLine("Database and tables created successfully.");
-
 var dataAccess = new DataAccess();
 
 Console.WriteLine("=== Hotel Database ===\n");
@@ -55,7 +51,7 @@ Console.WriteLine("--- Adding Reservations to Rooms ---");
 var reservation1 = new Reservation
 {
     GuestName = "John Doe",
-    CheckInDate = new DateTime(2024, 7, 1),
+    CheckInDate = new DateOnly(2024, 7, 1),
     NumberOfNights = 3,
     HasBreakfast = true
 };
@@ -65,7 +61,7 @@ Console.WriteLine($"Added Reservation for {reservation1.GuestName} to Room 101")
 var reservation2 = new Reservation
 {
     GuestName = "Jane Smith",
-    CheckInDate = new DateTime(2024, 7, 5),
+    CheckInDate = new DateOnly(2024, 7, 5),
     NumberOfNights = 2,
     HasBreakfast = false
 };
@@ -75,7 +71,7 @@ Console.WriteLine($"Added Reservation for {reservation2.GuestName} to Room 102")
 var reservation3 = new Reservation
 {
     GuestName = "Alice Johnson",
-    CheckInDate = new DateTime(2024, 7, 10),
+    CheckInDate = new DateOnly(2024, 7, 10),
     NumberOfNights = 4,
     HasBreakfast = true
 };
@@ -97,8 +93,8 @@ Console.WriteLine();
 // Get Earnings between dates
 Console.WriteLine("--- Getting Earnings between 2024-07-01 and 2024-07-15 ---");
 var earnings = await dataAccess.GetEarningsBetweenAsync(
-    new DateTime(2024, 7, 1),
-    new DateTime(2024, 7, 15));
+    new DateOnly(2024, 7, 1),
+    new DateOnly(2024, 7, 15));
 Console.WriteLine($"Total Earnings: {earnings}");
 
 Console.WriteLine("\n=== End of Hotel Database Operations ===");

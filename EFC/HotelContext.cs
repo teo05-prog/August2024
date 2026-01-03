@@ -9,6 +9,10 @@ public class HotelContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data Source=hotel.db");
+        string projectRoot = Directory.GetCurrentDirectory();
+        string dbPath = Path.Combine(projectRoot, "hotel.db");
+        
+        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        Console.WriteLine($"Database at: {dbPath}");
     }
 }

@@ -9,4 +9,5 @@ public class Room
     public float PricePerNight { get; set; }
     public int NumberOfBeds { get; set; }
     public bool HasSpa { get; set; }
+    public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 }

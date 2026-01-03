@@ -5,17 +5,15 @@ namespace EFC;
 
 public class DataAccess
 {
-    private HotelContext context;
+    private readonly HotelContext context;
 
     public DataAccess()
     {
         context = new HotelContext();
-        context.Database.EnsureCreated();
     }
 
     public async Task CreateRoomAsync(Room room)
     {
-        context = new HotelContext();
         context.Rooms.Add(room);
         await context.SaveChangesAsync();
     }
@@ -23,7 +21,6 @@ public class DataAccess
     public async Task AddReservationToRoomAsync(int roomId,
         Reservation reservation)
     {
-        context = new HotelContext();
         var room = await context.Rooms.FindAsync(roomId);
         if (room != null)
         {
@@ -35,16 +32,14 @@ public class DataAccess
 
     public async Task<List<Room>> GetRoomsAsync(int numberOfBeds, bool hasSpa)
     {
-        context = new HotelContext();
         return await context.Rooms
             .Where(r => r.NumberOfBeds == numberOfBeds && r.HasSpa == hasSpa)
             .ToListAsync();
     }
 
-    public async Task<float> GetEarningsBetweenAsync(DateTime startDate,
-        DateTime endDate)
+    public async Task<float> GetEarningsBetweenAsync(DateOnly startDate,
+        DateOnly endDate)
     {
-        context = new HotelContext();
         var reservations = await context.Reservations
             .Include(r => r.Room)
             .Where(r => r.CheckInDate >= startDate &&
@@ -63,7 +58,6 @@ public class DataAccess
                                  reservation.Room.PricePerNight * 0.2f;
             }
         }
-
         return totalEarnings;
     }
 }
